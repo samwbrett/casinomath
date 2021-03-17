@@ -1,5 +1,8 @@
 package tables.evals;
 
+/**
+ * Payline evaluator holds the hit logic, the payout, and the name of the payline.
+ */
 public class PaylineEvaluator {
 
     private final String name;
@@ -13,20 +16,11 @@ public class PaylineEvaluator {
     }
 
     public static PaylineEvaluator newLoseEvaluator() {
-        return new PaylineEvaluator("Lose", 0, (hands) -> true) {
-            @Override
-            boolean isLoss() {
-                return true;
-            }
-        };
+        return new PaylineEvaluator("Lose", 0, (hands) -> true);
     }
 
     public PaylineStatistics getNewPaylineStatistics() {
         return new PaylineStatistics(this);
-    }
-
-    boolean isLoss() {
-        return false;
     }
 
     public String getName() {

@@ -8,6 +8,9 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+/**
+ * Hand holds the cards in a hand. The cards do not have to be unique.
+ */
 public abstract class Hand<R extends Rank, S extends Suit> {
 
     protected final List<Card<R,S>> cards;

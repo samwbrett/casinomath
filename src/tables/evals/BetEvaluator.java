@@ -1,7 +1,6 @@
 package tables.evals;
 
 import java.util.Arrays;
-import java.util.Comparator;
 import java.util.stream.Collectors;
 
 public class BetEvaluator {
@@ -17,7 +16,8 @@ public class BetEvaluator {
     }
 
     public BetStatistics getNewBetStatistics() {
-        return new BetStatistics(name, Arrays.stream(paylineEvaluators).map(PaylineEvaluator::getNewPaylineStatistics).collect(Collectors.toList()).toArray(PaylineStatistics[]::new));
+        return new BetStatistics(name,
+                Arrays.stream(paylineEvaluators).map(PaylineEvaluator::getNewPaylineStatistics).collect(Collectors.toList()).toArray(PaylineStatistics[]::new));
     }
 
 }

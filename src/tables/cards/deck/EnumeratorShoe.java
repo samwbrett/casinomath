@@ -2,12 +2,15 @@ package tables.cards.deck;
 
 import java.util.*;
 
-public class EnumShoe<R extends Rank, S extends Suit> implements Cloneable {
+/**
+ * Shoe used for enumerating exact outcomes. Card counts stored internally in a map.
+ */
+public class EnumeratorShoe<R extends Rank, S extends Suit> implements Cloneable {
 
     protected Map<Card<R,S>, Double> counts;
     protected int cards;
 
-    public EnumShoe(int numDecks, R[] ranks, S[] suits) {
+    public EnumeratorShoe(int numDecks, R[] ranks, S[] suits) {
         counts = new HashMap<>();
         for (R rank : ranks)  {
             for (S suit : suits) {
@@ -17,7 +20,7 @@ public class EnumShoe<R extends Rank, S extends Suit> implements Cloneable {
         }
     }
 
-    protected EnumShoe(EnumShoe<R,S> shoe) {
+    protected EnumeratorShoe(EnumeratorShoe<R,S> shoe) {
         this.cards = shoe.cards;
         this.counts = new HashMap<>(shoe.counts);
     }
@@ -29,12 +32,12 @@ public class EnumShoe<R extends Rank, S extends Suit> implements Cloneable {
 
     @Override
     public boolean equals(Object o) {
-        return counts.equals(((EnumShoe)o).counts);
+        return counts.equals(((EnumeratorShoe)o).counts);
     }
 
     @Override
-    public EnumShoe<R,S> clone() {
-        return new EnumShoe<>(this);
+    public EnumeratorShoe<R,S> clone() {
+        return new EnumeratorShoe<>(this);
     }
 
     public Set<Card<R,S>> getCards() {

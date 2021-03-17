@@ -2,7 +2,7 @@ package tables.baccarat.calcs;
 
 import tables.cards.deck.Suit;
 
-public class SixCardDrawRule<R extends BaccRank, S extends Suit> {
+public class SixCardDrawRule<R extends BaccaratRank, S extends Suit> {
 
     public SixCardDrawRule() { }
 
@@ -20,7 +20,7 @@ public class SixCardDrawRule<R extends BaccRank, S extends Suit> {
                         (bScore == 6 && pThird >= 6 && pThird <= 7);
     }
 
-    public boolean isDraw(BaccHand<R, S> playerHand, BaccHand<R, S> bankerHand) {
+    public boolean isDraw(BaccaratHand<R, S> playerHand, BaccaratHand<R, S> bankerHand) {
         return playerHand.getNumCards() == 3 && bankerHand.getNumCards() == 2 &&
                 SIX_CARD_DRAW[bankerHand.getValue()][playerHand.getCards()[2].getRank().getValue()];
     }

@@ -1,9 +1,12 @@
-package tables.blackjack;
+package tables.blackjack.calcs;
 
 import tables.cards.deck.Card;
 import tables.cards.deck.Suit;
 import tables.evals.Hand;
 
+/**
+ * Blackjack hand with ability to get the blackjack hand value
+ */
 public class BlackjackHand extends Hand<BlackjackRank, Suit> {
 
     private boolean knownValue;

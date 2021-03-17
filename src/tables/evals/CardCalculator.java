@@ -1,5 +1,8 @@
 package tables.evals;
 
+/**
+ * Generic class for running statistics and outputting the result.
+ */
 public abstract class CardCalculator {
 
     protected final BetStatistics[] stats;
@@ -12,6 +15,6 @@ public abstract class CardCalculator {
         return stats;
     }
 
-    public abstract void run(int threads);
+    public abstract void run(int threads) throws InterruptedException;
 
 }

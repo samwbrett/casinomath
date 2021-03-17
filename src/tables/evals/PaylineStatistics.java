@@ -2,6 +2,10 @@ package tables.evals;
 
 import java.util.concurrent.atomic.AtomicLong;
 
+/**
+ * Combination counter for a payline evaluation.
+ * Adding all combinations can be done concurrently, then when all calls are done set the total combos to finalize.
+ */
 public class PaylineStatistics {
 
     private final PaylineEvaluator eval;
@@ -18,9 +22,7 @@ public class PaylineStatistics {
     }
 
     public void addCombinations(long combos) {
-        if (!eval.isLoss()) {
-            this.combos.addAndGet(combos);
-        }
+        this.combos.addAndGet(combos);
     }
 
     public void setTotalCombos(long totalCombos) {

@@ -3,6 +3,9 @@ package tables.evals;
 import java.util.Arrays;
 import java.util.stream.Collectors;
 
+/**
+ * Full information on a bet, along with information for each payline.
+ */
 public class BetStatistics {
 
     private final String name;
