@@ -4,7 +4,6 @@ import tables.baccarat.calcs.*;
 import tables.evals.*;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -97,14 +96,14 @@ public class DragonBonus {
     public DragonBonus(int decks, int threads) {
         this.decks = decks;
         this.threads = threads;
-        enumerator = new BaccaratEnumerator<>(new SixCardDrawRule(), new BaccaratSingleSuitEnumeratorShoe(decks), EVALS.toArray(BetEvaluator[]::new));
+        enumerator = new BaccaratEnumerator(new BaccaratSingleSuitEnumeratorShoe(decks), EVALS.toArray(BetEvaluator[]::new));
     }
 
     public void run() throws InterruptedException {
         enumerator.run(threads);
     }
 
-    public BetStatistics[] getStats() {
+    public List<BetStatistics> getStats() {
         return enumerator.getStats();
     }
 
@@ -115,7 +114,7 @@ public class DragonBonus {
             long start = System.currentTimeMillis();
 
             dragonBonus.run();
-            System.out.println("\n\n" + Arrays.stream(dragonBonus.getStats()).map(BetStatistics::toString).collect(Collectors.joining("\n\n")));
+            System.out.println("\n\n" + dragonBonus.getStats().stream().map(BetStatistics::toString).collect(Collectors.joining("\n\n")));
             System.out.println("Decks: " + dragonBonus.decks);
             System.out.println("\nTook " + (System.currentTimeMillis() - start) / 1000 + " seconds.");
 

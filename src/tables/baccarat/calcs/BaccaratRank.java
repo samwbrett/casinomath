@@ -2,6 +2,8 @@ package tables.baccarat.calcs;
 
 import tables.cards.deck.Rank;
 
+import java.util.List;
+
 /**
  * Ranks for baccarat cards
  */
@@ -35,8 +37,8 @@ public enum BaccaratRank implements Rank {
         return index;
     }
 
-    public BaccaratRank[] getRanks() {
-        return values();
+    public List<BaccaratRank> getRanks() {
+        return List.of(values());
     }
 
     public int getValue() {

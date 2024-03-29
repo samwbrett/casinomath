@@ -1,34 +1,28 @@
 package tables.cards.deck;
 
-public class Card<R extends Rank, S extends Suit> implements Comparable<Card<R, S>> {
+public class Card {
 
     private final int number;
-    private final R rank;
-    private final S suit;
+    private final Rank rank;
+    private final Suit suit;
 
-    public Card(R rank, S suit) {
+    public Card(Rank rank, Suit suit) {
         this.rank = rank;
         this.suit = suit;
-        this.number = suit.getIndex() * rank.getRanks().length + rank.getIndex();
+        this.number = suit.getIndex() * rank.getRanks().size() + rank.getIndex();
     }
 
-    public int getNumber()
-    {
-        return number;
-    }
+    public int getNumber() { return number; }
 
-    public S getSuit() { return suit; }
+    public Suit getSuit() { return suit; }
 
-    public R getRank() { return rank; }
+    public Rank getRank() { return rank; }
 
     @Override
     public int hashCode() { return number; }
 
     @Override
-    public int compareTo(Card o) { return number - o.number; }
-
-    @Override
-    public boolean equals(Object o) { return o instanceof Card && compareTo((Card)o) == 0; }
+    public boolean equals(Object o) { return o instanceof Card && this.number == ((Card)o).number; }
 
     @Override
     public String toString() { return rank.toString() + suit.toString(); }

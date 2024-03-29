@@ -1,17 +1,20 @@
 package tables.evals;
 
+import java.util.Collections;
+import java.util.List;
+
 /**
  * Generic class for running statistics and outputting the result.
  */
 public abstract class CardCalculator {
 
-    protected final BetStatistics[] stats;
+    protected final List<BetStatistics> stats;
 
-    protected CardCalculator(BetStatistics... stats) {
-        this.stats = stats;
+    protected CardCalculator(List<BetStatistics> stats) {
+        this.stats = Collections.unmodifiableList(stats);
     }
 
-    public BetStatistics[] getStats() {
+    public List<BetStatistics> getStats() {
         return stats;
     }
 

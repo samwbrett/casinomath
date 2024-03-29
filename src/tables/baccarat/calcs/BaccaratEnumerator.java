@@ -2,7 +2,6 @@ package tables.baccarat.calcs;
 
 import tables.cards.deck.Card;
 import tables.cards.deck.EnumeratorShoe;
-import tables.cards.deck.Suit;
 import tables.evals.*;
 
 import java.util.*;
@@ -10,19 +9,16 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicLong;
-import java.util.stream.Collectors;
 
 /**
  * Enumerator for baccarat hands...implements multi-threading
  */
-public class BaccaratEnumerator<R extends BaccaratRank, S extends Suit, H extends BaccaratHand<R,S>> extends CardCalculator {
+public class BaccaratEnumerator extends CardCalculator {
 
-    private final EnumeratorShoe<R,S> shoe;
-    private final SixCardDrawRule drawRule;
+    private final EnumeratorShoe shoe;
 
-    public BaccaratEnumerator(SixCardDrawRule drawRule, EnumeratorShoe<R,S> shoe, BetEvaluator... evals) {
-        super(Arrays.stream(evals).map(BetEvaluator::getNewBetStatistics).collect(Collectors.toList()).toArray(BetStatistics[]::new));
-        this.drawRule = drawRule;
+    public BaccaratEnumerator(EnumeratorShoe shoe, BetEvaluator... evals) {
+        super(Arrays.stream(evals).map(BetEvaluator::getNewBetStatistics).toList());
         this.shoe = shoe;
     }
 
@@ -30,32 +26,32 @@ public class BaccaratEnumerator<R extends BaccaratRank, S extends Suit, H extend
     public void run(int threads) throws InterruptedException {
 
         // Set up constants
-        Set<Card<R,S>> uniqueCards = new HashSet<>(shoe.getCards());
+        Set<Card> uniqueCards = new HashSet<>(shoe.getCards());
         int totalCards = shoe.getTotalCards();
         int combosExtra = (totalCards - 5);
         int combosExtra2 = (totalCards - 4) * (totalCards - 5);
         final AtomicLong totalCombos = new AtomicLong();
 
         ArrayList<Callable<Void>> callables = new ArrayList<>(uniqueCards.size());
-        for (Card<R,S> c1 : uniqueCards) {
+        for (Card c1 : uniqueCards) {
 
             callables.add(() -> {
 
-                EnumeratorShoe<R,S> threadShoe = shoe.clone();
+                EnumeratorShoe threadShoe = shoe.copyShoe();
                 int p1Num = c1.getRank().getValue();
-                long combos = (long)threadShoe.getCount(c1);
+                long combos = threadShoe.getCount(c1);
                 threadShoe.removeCard(c1);
-                for (Card<R,S> c2 : uniqueCards) {
+                for (Card c2 : uniqueCards) {
 
                     int b1Num = c2.getRank().getValue();
                     combos *= threadShoe.getCount(c2);
                     threadShoe.removeCard(c2);
-                    for (Card<R,S> c3 : uniqueCards) {
+                    for (Card c3 : uniqueCards) {
 
                         int p2Num = c3.getRank().getValue();
                         combos *= threadShoe.getCount(c3);
                         threadShoe.removeCard(c3);
-                        for (Card<R,S> c4 : uniqueCards) {
+                        for (Card c4 : uniqueCards) {
 
                             int b2Num = c4.getRank().getValue();
                             combos *= threadShoe.getCount(c4);
@@ -78,14 +74,14 @@ public class BaccaratEnumerator<R extends BaccaratRank, S extends Suit, H extend
                             }
                             // Player draws
                             else if (player2 < 6) {
-                                for (Card<R,S> c5 : uniqueCards) {
+                                for (Card c5 : uniqueCards) {
 
                                     int p3Num = c5.getRank().getValue();
                                     combos *= threadShoe.getCount(c5);
                                     threadShoe.removeCard(c5);
                                     // Banker draws
-                                    if (drawRule.isDraw(banker2, p3Num)) {
-                                        for (Card<R,S> c6 : uniqueCards) {
+                                    if (SixCardDrawRule.isDraw(banker2, p3Num)) {
+                                        for (Card c6 : uniqueCards) {
 
                                             combos *= threadShoe.getCount(c6);
                                             threadShoe.removeCard(c6);
@@ -120,7 +116,7 @@ public class BaccaratEnumerator<R extends BaccaratRank, S extends Suit, H extend
                             else {
 
                                 combos *= combosExtra;
-                                for (Card<R,S> c5 : uniqueCards) {
+                                for (Card c5 : uniqueCards) {
 
                                     combos *= threadShoe.getCount(c5);
                                     threadShoe.removeCard(c5);
@@ -153,12 +149,13 @@ public class BaccaratEnumerator<R extends BaccaratRank, S extends Suit, H extend
         }
 
         // Run starting hands
-        ExecutorService executorService = Executors.newFixedThreadPool(threads);
-        executorService.invokeAll(callables);
-        executorService.shutdown();
+        try (ExecutorService executorService = Executors.newFixedThreadPool(threads)) {
+            executorService.invokeAll(callables);
+            executorService.shutdown();
 
-        for (BetStatistics stat : stats) {
-            stat.setTotalCombos(totalCombos.get());
+            for (BetStatistics stat : stats) {
+                stat.setTotalCombos(totalCombos.get());
+            }
         }
     }
 

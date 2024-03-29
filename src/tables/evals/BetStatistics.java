@@ -1,6 +1,6 @@
 package tables.evals;
 
-import java.util.Arrays;
+import java.util.List;
 import java.util.stream.Collectors;
 
 /**
@@ -9,19 +9,19 @@ import java.util.stream.Collectors;
 public class BetStatistics {
 
     private final String name;
-    private final PaylineStatistics[] stats;
+    private final List<PaylineStatistics> stats;
     private long totalCombos;
     private double hitFrequency;
     private double pctReturn;
 
     public BetStatistics(String name, PaylineStatistics... stats) {
         this.name = name;
-        this.stats = stats;
+        this.stats = List.of(stats);
     }
 
     public PaylineStatistics getHitStat(Hand... hands) {
         for (PaylineStatistics stat : stats) {
-            if (stat.getPayEvaluator().getHitEvaluator().isHit(hands)) {
+            if (stat.getPayEvaluator().hitEvaluator().isHit(hands)) {
                 return stat;
             }
         }
@@ -29,7 +29,7 @@ public class BetStatistics {
     }
 
     public void addCombos(long combos) {
-        Arrays.stream(stats).forEach(stat -> stat.addCombinations(combos));
+        stats.forEach(stat -> stat.addCombinations(combos));
     }
 
     public void setTotalCombos(long totalCombos) {
@@ -41,7 +41,7 @@ public class BetStatistics {
         }
     }
 
-    public PaylineStatistics[] getStats() {
+    public List<PaylineStatistics> getStats() {
         return stats;
     }
 
@@ -59,8 +59,25 @@ public class BetStatistics {
 
     @Override
     public String toString() {
-        return "Bet\t" + name + "\nTotal Combos\t" + totalCombos + "\nHit Frequency\t" + hitFrequency + "\nPct Return\t" + pctReturn + "\nHouse Edge\t" + (1-pctReturn) + "\n\n" +
+        return "Bet\t" +
+                name +
+                "\nTotal Combos\t" +
+                totalCombos +
+                "\nHit Frequency\t" +
+                hitFrequency +
+                "\nPct Return\t" +
+                pctReturn +
+                "\nHouse Edge\t" +
+                (1-pctReturn) + "\n\n" +
                 "Bet\tCombos\tHit Frequency\tPct Return\n" +
-                Arrays.stream(stats).map(s -> s.getPayEvaluator().getName() + "\t" + s.getCombos() + "\t" + s.getHitFrequency() + "\t" + s.getPctReturn()).collect(Collectors.joining("\n"));
+                stats.stream().map(s ->
+                            s.getPayEvaluator().name() +
+                                "\t" +
+                                s.getCombos() +
+                                "\t" +
+                                s.getHitFrequency() +
+                                "\t" +
+                                s.getPctReturn())
+                        .collect(Collectors.joining("\n"));
     }
 }

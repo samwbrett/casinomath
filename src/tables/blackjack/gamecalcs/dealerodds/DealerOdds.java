@@ -2,9 +2,7 @@ package tables.blackjack.gamecalcs.dealerodds;
 
 import tables.blackjack.calcs.BlackjackEnumeratorShoe;
 import tables.blackjack.calcs.BlackjackHand;
-import tables.blackjack.calcs.BlackjackRank;
 import tables.cards.deck.Card;
-import tables.cards.deck.Suit;
 
 import java.util.*;
 import java.util.concurrent.ForkJoinTask;
@@ -12,10 +10,10 @@ import java.util.concurrent.RecursiveTask;
 
 class DealerOdds {
     
-    private Outcomes baseOutcomes;
-    private boolean dealerPeek;
-    private boolean hitSoft17;
-    private Map<UpCardShoe, Outcomes> outcomeOdds;
+    private final Outcomes baseOutcomes;
+    private final boolean dealerPeek;
+    private final boolean hitSoft17;
+    private final Map<UpCardShoe, Outcomes> outcomeOdds;
 
     public DealerOdds(boolean dealerPeek, boolean hitSoft17, Outcomes outcomes) {
         this.dealerPeek = dealerPeek;
@@ -24,18 +22,18 @@ class DealerOdds {
         outcomeOdds = new HashMap<>();
     }
 
-    public Outcomes chanceDealerEnd(Card<BlackjackRank, Suit> upCard, BlackjackEnumeratorShoe shoe) {
+    public Outcomes chanceDealerEnd(Card upCard, BlackjackEnumeratorShoe shoe) {
         Outcomes probs = outcomeOdds.get(new UpCardShoe(upCard, shoe));
         if (probs != null) {
             return probs;
         }
 
-        probs = baseOutcomes.clone();
-        Map<Card<BlackjackRank, Suit>, Double> dealerDown = shoe.dealerDownProbs(upCard, dealerPeek);
-        for (Card<BlackjackRank, Suit> c : dealerDown.keySet()) {
+        probs = baseOutcomes.copyOutcomes();
+        Map<Card, Double> dealerDown = shoe.dealerDownProbs(upCard, dealerPeek);
+        for (Card c : dealerDown.keySet()) {
             double cardProb = dealerDown.get(c);
             if (cardProb != 0) {
-                BlackjackEnumeratorShoe copyShoe = shoe.clone();
+                BlackjackEnumeratorShoe copyShoe = shoe.copyShoe();
                 BlackjackHand newHand = new BlackjackHand(upCard, c);
                 copyShoe.removeCard(c);
                 Outcomes newChance = chanceDealerEnd(newHand, copyShoe);
@@ -55,11 +53,11 @@ class DealerOdds {
         Outcomes probs;
         if (total < 17 || (hitSoft17 && total == 17 && hand.isSoft())) {
 
-            Outcomes probsHit = baseOutcomes.clone();
-            for (Card<BlackjackRank,Suit> c : shoe.getCards()) {
+            Outcomes probsHit = baseOutcomes.copyOutcomes();
+            for (Card c : shoe.getCards()) {
                 double cardProbCount = shoe.getCount(c);
                 if (cardProbCount != 0) {
-                    BlackjackEnumeratorShoe copyShoe = shoe.clone();
+                    BlackjackEnumeratorShoe copyShoe = shoe.copyShoe();
                     BlackjackHand newHand = new BlackjackHand(hand.getCards());
                     newHand.addCard(c);
                     copyShoe.removeCard(c);
@@ -78,7 +76,7 @@ class DealerOdds {
 
             return probsHit;
         } else {
-            probs = baseOutcomes.clone();
+            probs = baseOutcomes.copyOutcomes();
             for (int f = 0; f != probs.size(); f++) {
                 if (probs.isHit(f, hand)) {
                     probs.setOdds(f, 1);
@@ -92,9 +90,9 @@ class DealerOdds {
 
     class RecursiveDealerEnd extends RecursiveTask<Outcomes> {
 
-        private BlackjackHand hand;
-        private BlackjackEnumeratorShoe shoe;
-        private double cardProbCount;
+        private final BlackjackHand hand;
+        private final BlackjackEnumeratorShoe shoe;
+        private final double cardProbCount;
     
         RecursiveDealerEnd(BlackjackHand hand, BlackjackEnumeratorShoe shoe, double cardProbCount) {
             this.hand = hand;
@@ -107,10 +105,10 @@ class DealerOdds {
             if (hand.getValue() < 17 || (hand.getValue() < 18 && hitSoft17 && hand.isSoft())) {
     
                 List<RecursiveDealerEnd> dealerEnds = new ArrayList<>();
-                for (Card<BlackjackRank, Suit> c : shoe.getCards()) {
+                for (Card c : shoe.getCards()) {
                     double cardProbCount = shoe.getCount(c);
                     if (cardProbCount != 0) {
-                        BlackjackEnumeratorShoe copyShoe = shoe.clone();
+                        BlackjackEnumeratorShoe copyShoe = shoe.copyShoe();
                         BlackjackHand newHand = new BlackjackHand(hand.getCards());
                         newHand.addCard(c);
                         copyShoe.removeCard(c);
@@ -118,7 +116,7 @@ class DealerOdds {
                     }
                 }
     
-                Outcomes probsHit = baseOutcomes.clone();
+                Outcomes probsHit = baseOutcomes.copyOutcomes();
                 Collection<RecursiveDealerEnd> invokedDealers = ForkJoinTask.invokeAll(dealerEnds);
                 for (RecursiveDealerEnd dealerEnd : invokedDealers) {
                     Outcomes output = dealerEnd.join();

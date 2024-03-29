@@ -2,6 +2,8 @@ package tables.blackjack.calcs;
 
 import tables.cards.deck.Rank;
 
+import java.util.List;
+
 /**
  * Blackjack rank with standard values. Ace here is counted as 11.
  */
@@ -35,8 +37,8 @@ public enum BlackjackRank implements Rank {
         return index;
     }
 
-    public BlackjackRank[] getRanks() {
-        return values();
+    public List<BlackjackRank> getRanks() {
+        return List.of(values());
     }
 
     public int getValue() {

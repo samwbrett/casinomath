@@ -1,5 +1,7 @@
 package tables.cards.deck;
 
+import java.util.List;
+
 /**
  * Generic card suit
  */
@@ -7,11 +9,7 @@ public interface Suit {
 
     int getIndex();
 
-    Suit[] getSuits();
+    List<? extends Suit> getSuits();
 
     String getName();
-
-    default int compareTo(Suit s) {
-        return getIndex() - s.getIndex();
-    }
 }

@@ -1,29 +1,27 @@
 package tables.blackjack.gamecalcs.dealerodds;
 
 import tables.blackjack.calcs.BlackjackHand;
-import tables.evals.Hand;
 import tables.evals.HitEvaluator;
 
-import java.lang.reflect.Array;
-import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.LinkedList;
 import java.util.List;
 
-class Outcomes implements Cloneable {
+class Outcomes {
 
-    private List<Outcome> outcomes;
+    private final List<Outcome> outcomes;
 
     public Outcomes() {
-        this.outcomes = new ArrayList<>();
+        this.outcomes = new LinkedList<>();
     }
 
     private Outcomes(Outcome[] outcomes) {
-        this.outcomes = new ArrayList<>(outcomes.length);
+        this.outcomes = new LinkedList<>();
         Arrays.stream(outcomes).forEach(o -> this.outcomes.add(new Outcome(o.situation, o.eval)));
     }
 
     private Outcomes(Outcomes outcomes) {
-        this.outcomes = new ArrayList<>(outcomes.size());
+        this.outcomes = new LinkedList<>();
         for (Outcome outcome : outcomes.outcomes) {
             Outcome newOutcome = new Outcome(outcome.situation, outcome.eval);
             this.outcomes.add(newOutcome);
@@ -31,12 +29,11 @@ class Outcomes implements Cloneable {
         }
     }
 
-    @Override
-    public Outcomes clone() {
+    public Outcomes copyOutcomes() {
         return new Outcomes(this);
     }
 
-    public void addOutcome(String situation, HitEvaluator<BlackjackHand> eval) {
+    public void addOutcome(String situation, HitEvaluator eval) {
         outcomes.add(new Outcome(situation, eval));
     }
 
@@ -73,11 +70,14 @@ class Outcomes implements Cloneable {
         return builder.toString();
     }
 
-    public static Outcomes average(Outcomes[] outcomes) {
-        Outcomes averaged = new Outcomes(outcomes[0].outcomes.toArray(new Outcome[0]));
+    public static Outcomes average(List<Outcomes> outcomes) {
+        if (outcomes.isEmpty()) {
+            throw new IllegalArgumentException("Must have at least one outcome to average");
+        }
+        Outcomes averaged = new Outcomes(outcomes.getFirst().outcomes.toArray(new Outcome[0]));
         for (Outcomes os : outcomes) {
             for (int f = 0; f != averaged.outcomes.size(); f++) {
-                averaged.outcomes.get(f).odds += os.outcomes.get(f).odds / outcomes.length;
+                averaged.outcomes.get(f).odds += os.outcomes.get(f).odds / outcomes.size();
             }
         }
         return averaged;
@@ -86,17 +86,19 @@ class Outcomes implements Cloneable {
     private static class Outcome {
 
         private final String situation;
-        private final HitEvaluator<BlackjackHand> eval;
+        private final HitEvaluator eval;
         private double odds;
 
-        Outcome(String situation, HitEvaluator<BlackjackHand> eval) {
+        Outcome(String situation, HitEvaluator eval) {
             this.situation = situation;
             this.eval = eval;
         }
 
         @Override
         public String toString() {
-            return situation + "\t" + odds;
+            return situation +
+                    "\t" +
+                    odds;
         }
     }
 }

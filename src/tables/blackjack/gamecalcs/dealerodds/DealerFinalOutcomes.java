@@ -11,7 +11,7 @@ public class DealerFinalOutcomes {
     private static final Outcomes DEALER_FINAL = new Outcomes();
     static {
         // Generic for ordered options and easy modularity, it is easy to input but for simple cases such as shown iteration is slower
-        DEALER_FINAL.addOutcome("BJ", (h) -> h[0].isBlackjack());
+        DEALER_FINAL.addOutcome("BJ", (h) -> ((BlackjackHand)h[0]).isBlackjack());
         for (int value = 17; value != 27; value++) {
             DEALER_FINAL.addOutcome(Integer.toString(value), new ValueHitEvaluator(value));
         }
@@ -20,7 +20,7 @@ public class DealerFinalOutcomes {
     private final int decks;
     private final int threads;
     private final boolean hitSoft17;
-    private final List<Outcomes> finalOutcomes = new ArrayList<>();
+    private final List<Outcomes> finalOutcomes = new CopyOnWriteArrayList<>();
     private final List<Callable<Void>> callables = new ArrayList<>();
 
     public DealerFinalOutcomes(int decks, boolean hitSoft17, int threads) {
@@ -33,9 +33,9 @@ public class DealerFinalOutcomes {
         DealerOdds dealerOdds = new DealerOdds(false, hitSoft17, DEALER_FINAL);
         for (BlackjackRank rank : BlackjackRank.values()) {
             callables.add(() -> {
-                BlackjackEnumeratorShoe copyShoe = shoe.clone();
-                copyShoe.removeCard(new Card<>(rank, StandardSuit.SPADE));
-                Outcomes finalOutcome = dealerOdds.chanceDealerEnd(new Card<>(rank, StandardSuit.SPADE), copyShoe);
+                BlackjackEnumeratorShoe copyShoe = shoe.copyShoe();
+                copyShoe.removeCard(new Card(rank, StandardSuit.SPADE));
+                Outcomes finalOutcome = dealerOdds.chanceDealerEnd(new Card(rank, StandardSuit.SPADE), copyShoe);
                 finalOutcomes.add(finalOutcome);
                 return null;
             });
@@ -43,12 +43,13 @@ public class DealerFinalOutcomes {
     }
 
     public void run() throws InterruptedException {
-        ExecutorService executorService = new ForkJoinPool(threads);
-        executorService.invokeAll(callables);
-        executorService.shutdown();
+        try (ExecutorService executorService = new ForkJoinPool(threads)) {
+            executorService.invokeAll(callables);
+            executorService.shutdown();
+        }
     }
 
-    public List<Outcomes> getFinalOutcomes() {
+    private List<Outcomes> getFinalOutcomes() {
         return finalOutcomes;
     }
 
@@ -60,7 +61,7 @@ public class DealerFinalOutcomes {
             dealerOutcomes.run();
             List<Outcomes> finalOutcomes = dealerOutcomes.getFinalOutcomes();
 
-            System.out.println("\n\nTotal\t" + Outcomes.average(finalOutcomes.toArray(new Outcomes[0])));
+            System.out.println("\n\nTotal\t" + Outcomes.average(finalOutcomes));
             System.out.println("Decks: " + dealerOutcomes.decks + ", Hit Soft 17: " + dealerOutcomes.hitSoft17);
             System.out.println("\nTook " + (System.currentTimeMillis() - start) / 1000 + " seconds.");
 

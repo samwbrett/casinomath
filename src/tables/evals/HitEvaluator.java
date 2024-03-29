@@ -1,7 +1,7 @@
 package tables.evals;
 
 @FunctionalInterface
-public interface HitEvaluator<H extends Hand> {
+public interface HitEvaluator {
 
-    boolean isHit(H... hands);
+    boolean isHit(Hand... hands);
 }

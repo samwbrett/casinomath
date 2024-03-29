@@ -1,15 +1,13 @@
 package tables.blackjack.gamecalcs.dealerodds;
 
 import tables.blackjack.calcs.BlackjackEnumeratorShoe;
-import tables.blackjack.calcs.BlackjackRank;
 import tables.cards.deck.Card;
-import tables.cards.deck.Suit;
 
 class UpCardShoe {
-    private Card<BlackjackRank, Suit> upCard;
-    private BlackjackEnumeratorShoe shoe;
+    private final Card upCard;
+    private final BlackjackEnumeratorShoe shoe;
 
-    UpCardShoe(Card<BlackjackRank, Suit> upCard, BlackjackEnumeratorShoe shoe) {
+    UpCardShoe(Card upCard, BlackjackEnumeratorShoe shoe) {
         this.upCard = upCard;
         this.shoe = shoe;
     }

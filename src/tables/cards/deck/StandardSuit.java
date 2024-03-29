@@ -1,5 +1,7 @@
 package tables.cards.deck;
 
+import java.util.List;
+
 /**
  * Most common card suit
  */
@@ -20,8 +22,8 @@ public enum StandardSuit implements Suit {
 
     public int getIndex() { return index; }
 
-    public StandardSuit[] getSuits() {
-        return values();
+    public List<StandardSuit> getSuits() {
+        return List.of(values());
     }
 
     public String getName() { return name; }

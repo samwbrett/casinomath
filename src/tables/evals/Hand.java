@@ -1,42 +1,45 @@
 package tables.evals;
 
 import tables.cards.deck.Card;
-import tables.cards.deck.Rank;
-import tables.cards.deck.Suit;
 
-import java.util.ArrayList;
 import java.util.Collections;
+import java.util.LinkedList;
 import java.util.List;
 
 /**
  * Hand holds the cards in a hand. The cards do not have to be unique.
  */
-public abstract class Hand<R extends Rank, S extends Suit> {
+public abstract class Hand {
 
-    protected final List<Card<R,S>> cards;
+    protected final List<Card> cards;
 
     protected Hand() {
-        this.cards = new ArrayList<>();
+        this.cards = new LinkedList<>();
     }
 
-    protected Hand(Card<R,S>... cards) {
-        this.cards = new ArrayList<>(cards.length);
+    protected Hand(Card... cards) {
+        this();
         Collections.addAll(this.cards, cards);
+    }
+
+    protected Hand(List<Card> cards) {
+        this();
+        this.cards.addAll(cards);
     }
 
     public int getNumCards() {
         return cards.size();
     }
 
-    public Card<R,S>[] getCards() {
-        return cards.toArray(new Card[0]);
+    public List<Card> getCards() {
+        return Collections.unmodifiableList(cards);
     }
 
-    public void addCard(Card<R,S> card) {
+    public void addCard(Card card) {
         cards.add(card);
     }
 
-    public void removeCard(Card<R,S> card) {
+    public void removeCard(Card card) {
         cards.remove(card);
     }
 

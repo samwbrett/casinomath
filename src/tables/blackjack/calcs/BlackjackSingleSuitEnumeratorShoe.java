@@ -1,7 +1,8 @@
 package tables.blackjack.calcs;
 
 import tables.cards.deck.StandardSuit;
-import tables.cards.deck.Suit;
+
+import java.util.List;
 
 /**
  * Blackjack enumerator shoe for one suit used when suit does not affect outcomes. Preferred speedwise.
@@ -9,15 +10,14 @@ import tables.cards.deck.Suit;
 public class BlackjackSingleSuitEnumeratorShoe extends BlackjackEnumeratorShoe {
 
     public BlackjackSingleSuitEnumeratorShoe(int numDecks) {
-        super(numDecks * StandardSuit.values().length, BlackjackRank.values(), new Suit[]{StandardSuit.SPADE});
+        super(numDecks * StandardSuit.values().length, List.of(BlackjackRank.values()), List.of(StandardSuit.SPADE));
     }
 
     protected BlackjackSingleSuitEnumeratorShoe(BlackjackEnumeratorShoe shoe) {
         super(shoe);
     }
 
-    @Override
-    public BlackjackSingleSuitEnumeratorShoe clone() {
+    public BlackjackSingleSuitEnumeratorShoe copyShoe() {
         return new BlackjackSingleSuitEnumeratorShoe(this);
     }
 }

@@ -1,13 +1,11 @@
 package tables.baccarat.calcs;
 
-import tables.cards.deck.Suit;
+public class SixCardDrawRule {
 
-public class SixCardDrawRule<R extends BaccaratRank, S extends Suit> {
-
-    public SixCardDrawRule() { }
+    private SixCardDrawRule() { }
 
     // Banker value and player third card
-    public static final boolean[][] SIX_CARD_DRAW = new boolean[10][10];
+    private static final boolean[][] SIX_CARD_DRAW = new boolean[10][10];
 
     static {
         // Set up six card draw
@@ -20,12 +18,11 @@ public class SixCardDrawRule<R extends BaccaratRank, S extends Suit> {
                         (bScore == 6 && pThird >= 6 && pThird <= 7);
     }
 
-    public boolean isDraw(BaccaratHand<R, S> playerHand, BaccaratHand<R, S> bankerHand) {
-        return playerHand.getNumCards() == 3 && bankerHand.getNumCards() == 2 &&
-                SIX_CARD_DRAW[bankerHand.getValue()][playerHand.getCards()[2].getRank().getValue()];
+    public static boolean isDraw(BaccaratHand playerHand, BaccaratHand bankerHand) {
+        return playerHand.getNumCards() == 3 && bankerHand.getNumCards() == 2 && isDraw(bankerHand.getValue(), playerHand.getCards().get(2).getRank().getValue());
     }
 
-    public boolean isDraw(int bankerScore, int playerThird) {
+    public static boolean isDraw(int bankerScore, int playerThird) {
         return SIX_CARD_DRAW[bankerScore][playerThird];
     }
 

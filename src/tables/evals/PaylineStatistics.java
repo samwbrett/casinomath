@@ -5,15 +5,16 @@ import java.util.concurrent.atomic.AtomicLong;
 /**
  * Combination counter for a payline evaluation.
  * Adding all combinations can be done concurrently, then when all calls are done set the total combos to finalize.
+ * Thread safe for adding combos
  */
 public class PaylineStatistics {
 
     private final PaylineEvaluator eval;
-    private volatile AtomicLong combos = new AtomicLong();
+    private final AtomicLong combos = new AtomicLong();
     private double hitFrequency;
     private double pctReturn;
 
-    public PaylineStatistics(PaylineEvaluator eval) {
+    PaylineStatistics(PaylineEvaluator eval) {
         this.eval = eval;
     }
 
@@ -27,7 +28,7 @@ public class PaylineStatistics {
 
     public void setTotalCombos(long totalCombos) {
         hitFrequency = combos.get() / (double)totalCombos;
-        pctReturn = hitFrequency * eval.getForPay();
+        pctReturn = hitFrequency * eval.forPay();
     }
 
     public long getCombos() {
@@ -44,6 +45,13 @@ public class PaylineStatistics {
 
     @Override
     public String toString() {
-        return "Bet\t" + eval.getName() + "\nTotalCombos\t" + combos + "\nHit Frequency\t" + hitFrequency + "\nPct Return\t" + pctReturn;
+        return "Bet\t" +
+                eval.name() +
+                "\nTotalCombos\t" +
+                combos +
+                "\nHit Frequency\t" +
+                hitFrequency +
+                "\nPct Return\t" +
+                pctReturn;
     }
 }

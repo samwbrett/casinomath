@@ -1,7 +1,6 @@
 package tables.baccarat.calcs;
 
 import tables.cards.deck.Card;
-import tables.cards.deck.Suit;
 import tables.evals.Hand;
 
 import java.util.Arrays;
@@ -9,13 +8,13 @@ import java.util.Arrays;
 /**
  * Baccarat hand with basic checks for different hand types
  */
-public class BaccaratHand<R extends BaccaratRank,S extends Suit> extends Hand<R, S> {
+public class BaccaratHand extends Hand {
 
     protected final int value;
 
-    public BaccaratHand(Card<R,S>... cards) {
+    public BaccaratHand(Card... cards) {
         super(cards);
-        this.value = Arrays.stream(cards).mapToInt(c -> ((BaccaratRank)c.getRank()).getValue()).reduce(0, (a, b) -> (a+b)%10);
+        this.value = Arrays.stream(cards).mapToInt(c -> c.getRank().getValue()).reduce(0, (a, b) -> (a+b)%10);
     }
 
     public int getValue() {

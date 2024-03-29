@@ -1,5 +1,7 @@
 package tables.cards.deck;
 
+import java.util.List;
+
 /**
  * Generic card rank
  */
@@ -11,12 +13,8 @@ public interface Rank {
         return getIndex();
     }
 
-    Rank[] getRanks();
+    List<? extends Rank> getRanks();
 
     String getName();
-
-    default int compareTo(Rank rank) {
-        return getIndex() - rank.getIndex();
-    }
 
 }

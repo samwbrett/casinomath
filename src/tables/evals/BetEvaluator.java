@@ -1,23 +1,25 @@
 package tables.evals;
 
-import java.util.Arrays;
-import java.util.stream.Collectors;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 public class BetEvaluator {
 
-    private String name;
-    private PaylineEvaluator[] paylineEvaluators;
+    private final String name;
+    private final List<PaylineEvaluator> paylineEvaluators;
 
     public BetEvaluator(String name, PaylineEvaluator... paylineEvaluators) {
         this.name = name;
-        this.paylineEvaluators = new PaylineEvaluator[paylineEvaluators.length+1];
-        System.arraycopy(paylineEvaluators, 0, this.paylineEvaluators, 0, paylineEvaluators.length);
-        this.paylineEvaluators[this.paylineEvaluators.length - 1] = PaylineEvaluator.newLoseEvaluator();
+        List<PaylineEvaluator> paylineList = new ArrayList<>(paylineEvaluators.length + 1);
+        Collections.addAll(paylineList, paylineEvaluators);
+        paylineList.add(PaylineEvaluator.newLoseEvaluator());
+        this.paylineEvaluators = Collections.unmodifiableList(paylineList);
     }
 
     public BetStatistics getNewBetStatistics() {
         return new BetStatistics(name,
-                Arrays.stream(paylineEvaluators).map(PaylineEvaluator::getNewPaylineStatistics).collect(Collectors.toList()).toArray(PaylineStatistics[]::new));
+                paylineEvaluators.stream().map(PaylineEvaluator::newPaylineStatistics).toList().toArray(PaylineStatistics[]::new));
     }
 
 }
