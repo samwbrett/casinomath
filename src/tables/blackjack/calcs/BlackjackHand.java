@@ -6,7 +6,14 @@ import tables.evals.Hand;
 import java.util.List;
 
 /**
- * Blackjack hand with ability to get the blackjack hand value
+ * A blackjack hand that computes the hand value with proper ace handling.
+ * <p>
+ * Aces are initially counted as 11. If the total exceeds 21, aces are
+ * converted from 11 to 1 (subtracting 10) until the hand is 21 or under,
+ * or all aces have been reduced.
+ * <p>
+ * The hand value is lazily computed and cached. It is invalidated when cards
+ * are added or removed.
  */
 public class BlackjackHand extends Hand {
 
@@ -22,53 +29,68 @@ public class BlackjackHand extends Hand {
         super(cards);
     }
 
-    private void updateValue() {
+    /**
+     * Computes the hand value if it has not been computed yet or has been
+     * invalidated by card changes.
+     */
+    private void computeValue() {
         if (!knownValue) {
             int aces = 0;
-            int value = 0;
+            int total = 0;
             for (Card card : cards) {
                 if (card.getRank().getValue() == 11) {
                     aces++;
                 }
-                value += card.getRank().getValue();
+                total += card.getRank().getValue();
             }
-            while (aces != 0 && value > 21) {
-                value -= 10;
+            while (aces > 0 && total > 21) {
+                total -= 10;
                 aces--;
             }
-            soft = aces != 0;
-
-            this.value = value;
+            soft = aces > 0;
+            this.value = total;
             knownValue = true;
         }
     }
 
+    /** Returns the blackjack hand value (4-21). */
     public int getValue() {
-        updateValue();
+        computeValue();
         return value;
     }
 
+    /** Returns true if the hand is soft (contains a counted-as-11 ace). */
     public boolean isSoft() {
-        updateValue();
+        computeValue();
         return soft;
     }
 
+    /**
+     * Returns true if this is a two-card 21 (blackjack).
+     * A blackjack must have exactly 2 cards, be soft (contain an ace),
+     * and total exactly 21.
+     */
     public boolean isBlackjack() {
         if (cards.size() != 2) {
             return false;
         }
-        updateValue();
+        computeValue();
         return soft && value == 21;
     }
 
+    @Override
     public void addCard(Card card) {
         super.addCard(card);
         knownValue = false;
     }
 
-    public void removeCard(Card card) {
-        super.removeCard(card);
-        knownValue = false;
+    @Override
+    public boolean removeCard(Card card) {
+        boolean removed = super.removeCard(card);
+        if (removed) {
+            knownValue = false;
+        }
+        return removed;
     }
-
 }
+

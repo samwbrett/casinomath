@@ -3,14 +3,17 @@ package tables.cards.deck;
 import java.util.List;
 
 /**
- * Most common card suit
+ * The four standard French playing card suits: spades, hearts, diamonds, and clubs.
+ * <p>
+ * Each suit has a numeric index (used for card identification) and a single-character
+ * display name.
  */
 public enum StandardSuit implements Suit {
 
-    SPADE(3,"s"),
-    HEART(2,"h"),
-    DIAMOND(1,"d"),
-    CLUB(0,"c");
+    SPADE(3, "s"),
+    HEART(2, "h"),
+    DIAMOND(1, "d"),
+    CLUB(0, "c");
 
     private final int index;
     private final String name;
@@ -20,11 +23,24 @@ public enum StandardSuit implements Suit {
         this.name = name;
     }
 
-    public int getIndex() { return index; }
+    @Override
+    public int getIndex() {
+        return index;
+    }
 
+    @Override
     public List<StandardSuit> getSuits() {
         return List.of(values());
     }
 
-    public String getName() { return name; }
+    @Override
+    public String getName() {
+        return name;
+    }
+
+    @Override
+    public String toString() {
+        return name;
+    }
 }
+

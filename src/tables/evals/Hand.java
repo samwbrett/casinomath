@@ -2,19 +2,23 @@ package tables.evals;
 
 import tables.cards.deck.Card;
 
+import java.util.ArrayList;
 import java.util.Collections;
-import java.util.LinkedList;
 import java.util.List;
 
 /**
- * Hand holds the cards in a hand. The cards do not have to be unique.
+ * Abstract base class representing a hand of cards in a casino game.
+ * <p>
+ * The cards in a hand are stored in insertion order and duplicates are allowed
+ * (e.g., multiple copies of the same card type across different hands).
+ * Subclasses add game-specific logic such as hand value evaluation.
  */
 public abstract class Hand {
 
     protected final List<Card> cards;
 
     protected Hand() {
-        this.cards = new LinkedList<>();
+        this.cards = new ArrayList<>();
     }
 
     protected Hand(Card... cards) {
@@ -27,20 +31,28 @@ public abstract class Hand {
         this.cards.addAll(cards);
     }
 
+    /** Returns the number of cards currently in this hand. */
     public int getNumCards() {
         return cards.size();
     }
 
+    /** Returns an unmodifiable view of the cards in this hand. */
     public List<Card> getCards() {
         return Collections.unmodifiableList(cards);
     }
 
+    /** Adds a card to this hand. */
     public void addCard(Card card) {
         cards.add(card);
     }
 
-    public void removeCard(Card card) {
-        cards.remove(card);
+    /**
+     * Removes the first occurrence of the specified card from this hand.
+     *
+     * @param card the card to remove
+     * @return true if a card was removed
+     */
+    public boolean removeCard(Card card) {
+        return cards.remove(card);
     }
-
 }
