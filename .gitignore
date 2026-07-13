@@ -1,4 +1,7 @@
 *.iml
-.idea/.gitignore
 .idea/
+.gradle/
+build/
 out/
+*.class
+bin/

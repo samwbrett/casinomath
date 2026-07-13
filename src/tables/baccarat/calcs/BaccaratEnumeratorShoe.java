@@ -7,7 +7,11 @@ import tables.cards.deck.Suit;
 import java.util.List;
 
 /**
- * Enumerator shoe for baccarat with all standard suits
+ * A baccarat-specific enumerator shoe that uses all four standard suits
+ * and baccarat ranks.
+ * <p>
+ * For performance, prefer {@link BaccaratSingleSuitEnumeratorShoe} when
+ * suit does not affect the outcome, as it reduces the state space.
  */
 public class BaccaratEnumeratorShoe extends EnumeratorShoe {
 
@@ -23,8 +27,9 @@ public class BaccaratEnumeratorShoe extends EnumeratorShoe {
         super(numDecks, ranks, suits);
     }
 
+    @Override
     public BaccaratEnumeratorShoe copyShoe() {
         return new BaccaratEnumeratorShoe(this);
     }
-
 }
+

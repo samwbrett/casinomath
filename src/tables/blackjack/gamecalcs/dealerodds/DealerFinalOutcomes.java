@@ -1,18 +1,35 @@
 package tables.blackjack.gamecalcs.dealerodds;
 
-import tables.blackjack.calcs.*;
-import tables.cards.deck.*;
+import tables.blackjack.calcs.BlackjackEnumeratorShoe;
+import tables.blackjack.calcs.BlackjackHand;
+import tables.blackjack.calcs.BlackjackRank;
+import tables.blackjack.calcs.BlackjackSingleSuitEnumeratorShoe;
+import tables.cards.deck.Card;
+import tables.cards.deck.StandardSuit;
 
-import java.util.*;
-import java.util.concurrent.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.Callable;
+import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.ForkJoinPool;
 
+/**
+ * Computes the probability distribution of a dealer's final hand outcome
+ * for each possible up card in blackjack.
+ * <p>
+ * For each rank (2 through Ace), this creates a task that removes one card
+ * of that rank from the shoe (as the up card) and computes the dealer's
+ * outcome distribution given that up card. Results are then averaged to
+ * produce the overall dealer outcome probabilities.
+ */
 public class DealerFinalOutcomes {
 
     private static final Outcomes DEALER_FINAL = new Outcomes();
+
     static {
-        // Generic for ordered options and easy modularity, it is easy to input but for simple cases such as shown iteration is slower
-        DEALER_FINAL.addOutcome("BJ", (h) -> ((BlackjackHand)h[0]).isBlackjack());
-        for (int value = 17; value != 27; value++) {
+        DEALER_FINAL.addOutcome("BJ", (h) -> ((BlackjackHand) h[0]).isBlackjack());
+        for (int value = 17; value < 27; value++) {
             DEALER_FINAL.addOutcome(Integer.toString(value), new ValueHitEvaluator(value));
         }
     }
@@ -23,8 +40,14 @@ public class DealerFinalOutcomes {
     private final List<Outcomes> finalOutcomes = new CopyOnWriteArrayList<>();
     private final List<Callable<Void>> callables = new ArrayList<>();
 
+    /**
+     * Constructs the calculator, creating tasks for each possible up card rank.
+     *
+     * @param decks     the number of decks in the shoe
+     * @param hitSoft17 whether the dealer hits on soft 17
+     * @param threads   the number of threads to use
+     */
     public DealerFinalOutcomes(int decks, boolean hitSoft17, int threads) {
-
         this.decks = decks;
         this.threads = threads;
         this.hitSoft17 = hitSoft17;
@@ -34,14 +57,16 @@ public class DealerFinalOutcomes {
         for (BlackjackRank rank : BlackjackRank.values()) {
             callables.add(() -> {
                 BlackjackEnumeratorShoe copyShoe = shoe.copyShoe();
-                copyShoe.removeCard(new Card(rank, StandardSuit.SPADE));
-                Outcomes finalOutcome = dealerOdds.chanceDealerEnd(new Card(rank, StandardSuit.SPADE), copyShoe);
+                Card upCard = new Card(rank, StandardSuit.SPADE);
+                copyShoe.removeCard(upCard);
+                Outcomes finalOutcome = dealerOdds.chanceDealerEnd(upCard, copyShoe);
                 finalOutcomes.add(finalOutcome);
                 return null;
             });
         }
     }
 
+    /** Runs the computation for all up cards. */
     public void run() throws InterruptedException {
         try (ExecutorService executorService = new ForkJoinPool(threads)) {
             executorService.invokeAll(callables);
@@ -49,25 +74,31 @@ public class DealerFinalOutcomes {
         }
     }
 
-    private List<Outcomes> getFinalOutcomes() {
-        return finalOutcomes;
+    /**
+     * Returns the per-up-card outcome distributions.
+     *
+     * @return a list of outcome distributions, one per up card rank
+     */
+    public List<Outcomes> getFinalOutcomes() {
+        return List.copyOf(finalOutcomes);
     }
 
+    /**
+     * Runs the dealer outcome calculation for 8 decks, H17, with 8 threads
+     * and prints the averaged results to stdout.
+     */
     public static void main(String[] args) {
-
         DealerFinalOutcomes dealerOutcomes = new DealerFinalOutcomes(8, true, 8);
         try {
             long start = System.currentTimeMillis();
             dealerOutcomes.run();
             List<Outcomes> finalOutcomes = dealerOutcomes.getFinalOutcomes();
-
             System.out.println("\n\nTotal\t" + Outcomes.average(finalOutcomes));
             System.out.println("Decks: " + dealerOutcomes.decks + ", Hit Soft 17: " + dealerOutcomes.hitSoft17);
             System.out.println("\nTook " + (System.currentTimeMillis() - start) / 1000 + " seconds.");
-
         } catch (InterruptedException e) {
-            e.printStackTrace();
+            Thread.currentThread().interrupt();
+            System.err.println("Computation interrupted: " + e.getMessage());
         }
     }
-
 }
