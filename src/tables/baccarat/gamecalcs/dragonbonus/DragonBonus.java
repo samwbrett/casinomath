@@ -15,17 +15,19 @@ import java.util.stream.Collectors;
  * Computes exact statistics for the Dragon Bonus side bet and standard
  * baccarat bets (Banker, Player, Pair) using combinatorial enumeration.
  * <p>
- * The Dragon Bonus is a side bet on the margin of victory:
+ * The Dragon Bonus is a side bet on the margin of victory.
+ * Payline values below are in "for one" format (total return including bet):
  * <ul>
- *   <li>Natural Win: pays 2 to 1</li>
- *   <li>Win by 4: pays 2 to 1</li>
- *   <li>Win by 5: pays 3 to 1</li>
- *   <li>Win by 6: pays 5 to 1</li>
- *   <li>Win by 7: pays 7 to 1</li>
- *   <li>Win by 8: pays 11 to 1</li>
- *   <li>Win by 9: pays 31 to 1</li>
- *   <li>Natural Tie: pays 1 to 1</li>
+ *   <li>Natural Win: forPay=2 (1 to 1)</li>
+ *   <li>Natural Tie: forPay=1 (push)</li>
+ *   <li>Win by 9: forPay=31 (30 to 1)</li>
+ *   <li>Win by 8: forPay=11 (10 to 1)</li>
+ *   <li>Win by 7: forPay=7 (6 to 1)</li>
+ *   <li>Win by 6: forPay=5 (4 to 1)</li>
+ *   <li>Win by 5: forPay=3 (2 to 1)</li>
+ *   <li>Win by 4: forPay=2 (1 to 1)</li>
  * </ul>
+
  */
 public class DragonBonus {
 

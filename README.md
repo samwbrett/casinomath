@@ -154,8 +154,10 @@ engine.getStats().forEach(System.out::println);
   and `getCards()` for hand inspection.
 - Card ranks are accessed via `c.getRank()`. Use `c.getRank().getValue()` for
   baccarat point values (0–9) where face cards and tens are worth 0.
-- Payouts are specified in "for one" format: a 2-to-1 payout is `3` (returns
-  3 units for 1 unit wagered), an even-money payout is `2`.
+- Payouts are specified in **"for one"** format: `forPay` is the total returned
+  (bet + profit). A `forPay` of `3` means 2-to-1 (bet 1, get back 3, profit 2).
+  Even money (1-to-1) is `forPay = 2`, a push (0-to-1) is `forPay = 1`.
+
 - Bet names and payline names are free-form strings used only in display output.
 
 ### Full example: Dragon Bonus
@@ -164,18 +166,19 @@ The `DragonBonus` class in
 `src/tables/baccarat/gamecalcs/dragonbonus/DragonBonus.java` demonstrates a
 complete multi-payline side bet with the following paylines:
 
-| Payline | Pays | Condition |
-|---|---|---|
-| Natural Win | 2 to 1 | Natural (8 or 9) and beats banker |
-| Natural Tie | 1 to 1 | Natural and ties banker |
-| Win by 9 | 31 to 1 | Margin of victory is 9 |
-| Win by 8 | 11 to 1 | Margin of victory is 8 |
-| Win by 7 | 7 to 1 | Margin of victory is 7 |
-| Win by 6 | 5 to 1 | Margin of victory is 6 |
-| Win by 5 | 3 to 1 | Margin of victory is 5 |
-| Win by 4 | 2 to 1 | Margin of victory is 4 |
+| Payline | Pays (for one) | Pays (to 1) | Condition |
+|---|---|---|---|
+| Natural Win | 2 | 1 to 1 | Natural (8 or 9) and beats banker |
+| Natural Tie | 1 | push | Natural and ties banker |
+| Win by 9 | 31 | 30 to 1 | Margin of victory is 9 |
+| Win by 8 | 11 | 10 to 1 | Margin of victory is 8 |
+| Win by 7 | 7 | 6 to 1 | Margin of victory is 7 |
+| Win by 6 | 5 | 4 to 1 | Margin of victory is 6 |
+| Win by 5 | 3 | 2 to 1 | Margin of victory is 5 |
+| Win by 4 | 2 | 1 to 1 | Margin of victory is 4 |
 
 ## License
 
 MIT
+
 
