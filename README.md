@@ -123,25 +123,19 @@ payout multiplier, and a `HitEvaluator` lambda that receives both hands as
 Paylines are checked **in order**; the first match wins. A "Lose" payline
 (payout 0) is automatically appended to capture all non-winning combinations.
 
-The following example implements a "Red 8" side bet that pays when either
-hand contains the 8 of diamonds:
+The following example implements a "Player Natural" side bet that pays 4 to 1
+(house edge ≈ 5.3%) when the Player is dealt a natural hand (8 or 9):
 
 ```java
-BetEvaluator red8 = new BetEvaluator("Red 8",
-    new PaylineEvaluator("8 of Diamonds", 20, (hands) -> {
-        // Check if either hand contains the 8 of diamonds
-        Card eightDiamonds = new Card(
-            BlackjackRank.EIGHT, StandardSuit.DIAMOND);
-        for (Hand hand : hands) {
-            for (Card c : hand.getCards()) {
-                if (c.equals(eightDiamonds)) return true;
-            }
-        }
-        return false;
+BetEvaluator playerNatural = new BetEvaluator("Player Natural",
+    new PaylineEvaluator("Natural 8 or 9", 5, (hands) -> {
+        BaccaratHand player = (BaccaratHand) hands[0];
+        int value = player.getValue();
+        return player.isNatural() && (value == 8 || value == 9);
     }));
 
 // Pass multiple bet evaluators to compute all at once
-BaccaratEnumerator engine = new BaccaratEnumerator(shoe, playerBet, red8);
+BaccaratEnumerator engine = new BaccaratEnumerator(shoe, playerNatural);
 engine.run(4);
 engine.getStats().forEach(System.out::println);
 ```
@@ -157,7 +151,6 @@ engine.getStats().forEach(System.out::println);
 - Payouts are specified in **"for one"** format: `forPay` is the total returned
   (bet + profit). A `forPay` of `3` means 2-to-1 (bet 1, get back 3, profit 2).
   Even money (1-to-1) is `forPay = 2`, a push (0-to-1) is `forPay = 1`.
-
 - Bet names and payline names are free-form strings used only in display output.
 
 ### Full example: Dragon Bonus
@@ -180,5 +173,3 @@ complete multi-payline side bet with the following paylines:
 ## License
 
 MIT
-
-
